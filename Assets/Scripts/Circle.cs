@@ -5,7 +5,7 @@ namespace BehnamPhysicsEngine
     public class Circle : PhysicsShape
     {
         #region --------------------interface
-        public Circle(float radius, float4x4 transform) : base(transform) => _radius = radius;
+        public Circle(float4x4 transform, float radius) : base(transform) => _radius = radius;
 
         public float Radius => _radius;
 

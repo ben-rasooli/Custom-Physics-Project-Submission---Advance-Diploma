@@ -5,7 +5,7 @@ namespace BehnamPhysicsEngine
     public class AABB : PhysicsShape
     {
         #region --------------------interface
-        public AABB(float2 exdend, float4x4 transform) : base(transform)
+        public AABB(float4x4 transform, float2 exdend) : base(transform)
         {
             _extents = exdend;
         }

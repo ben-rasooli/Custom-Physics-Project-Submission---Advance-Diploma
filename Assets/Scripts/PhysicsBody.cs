@@ -5,27 +5,28 @@ namespace BehnamPhysicsEngine
     public class PhysicsBody
     {
         #region --------------------interface
-        public PhysicsBody(float4x4 transform, float mass)
+        public PhysicsBody(PhysicsShape physicsShape, float mass)
         {
-            _transform = transform;
+            _physicsShape = physicsShape;
             _mass = mass;
         }
 
-        public void AddForce(float3 force)
+        public void OnFixedUpdate(float fixedDeltaTime)
         {
-
+            AddForce(PhysicsScene.Gravity * _mass * fixedDeltaTime);
+            _physicsShape.Position += _velocity * fixedDeltaTime;
         }
 
-        public float4x4 Transform() => _transform;
-
-        public float3 Position { get { return _transform.c3.xyz; } set { _transform.c3 = new float4(value, 1.0f); } }
-
-        public quaternion Rotation { get { return new quaternion(_transform); } set { _transform = new float4x4(value, Position); } }
+        public void AddForce(float2 force)
+        {
+            float2 acceleration = force / _mass;
+            _velocity += acceleration;
+        }
         #endregion
 
         #region --------------------details
-        float4x4 _transform;
-        float3 _velocity;
+        float2 _velocity;
+        PhysicsShape _physicsShape;
         float _mass;
         #endregion
     }

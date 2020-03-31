@@ -8,7 +8,8 @@ namespace BehnamPhysicsEngine
         #region --------------------interface
         public Plane(float4x4 transform) : base(transform)
         {
-            _offsetToWorldCenter = -math.dot(Position, _transform.c1.xyz);
+            _offsetToWorldCenter = -math.dot(Position, _transform.c1.xy);
+            _normal = _transform.c1.xy;
         }
 
         public override bool IsCollidingWith(Circle circle)
@@ -19,12 +20,12 @@ namespace BehnamPhysicsEngine
 
         public override bool IsCollidingWith(AABB AABB)
         {
-            List<float3> AABBCorners = new List<float3>
+            List<float2> AABBCorners = new List<float2>
             {
-                new float3(AABB.Max,0.0f),
-                new float3(AABB.Min.x, AABB.Max.y, 0.0f),
-                new float3(AABB.Min, 0.0f),
-                new float3(AABB.Max.x, AABB.Min.y, 0.0f)
+                AABB.Max,
+                new float2(AABB.Min.x, AABB.Max.y),
+                AABB.Min,
+                new float2(AABB.Max.x, AABB.Min.y)
             };
 
             List<bool> sides = new List<bool> { false, false };
@@ -48,20 +49,19 @@ namespace BehnamPhysicsEngine
 
         #region --------------------details
         float _offsetToWorldCenter;
+        float2 _normal;
 
-        float getDistanceTo(float3 pointPosition)
+        float getDistanceTo(float2 pointPosition)
         {
-            float3 planeNormal = _transform.c1.xyz;
-            return math.dot(pointPosition, planeNormal) + _offsetToWorldCenter;
+            return math.dot(pointPosition, _normal) + _offsetToWorldCenter;
         }
 
-        float3 getClosestPointOnPlane(float3 pointPosition)
+        float2 getClosestPointOnPlane(float2 pointPosition)
         {
-            float3 planeNormal = _transform.c1.xyz;
-            return _offsetToWorldCenter - planeNormal * getDistanceTo(pointPosition);
+            return _offsetToWorldCenter - _normal * getDistanceTo(pointPosition);
         }
 
-        PlaneSides InWhichSideOfPlaneIs(float3 pointPosition)
+        PlaneSides InWhichSideOfPlaneIs(float2 pointPosition)
         {
             float distanceToPoint = getDistanceTo(pointPosition);
 
