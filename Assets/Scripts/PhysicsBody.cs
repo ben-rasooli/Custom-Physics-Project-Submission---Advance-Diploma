@@ -17,6 +17,10 @@ namespace BehnamPhysicsEngine
         }
 
         public float4x4 Transform() => _transform;
+
+        public float3 Position { get { return _transform.c3.xyz; } set { _transform.c3 = new float4(value, 1.0f); } }
+
+        public quaternion Rotation { get { return new quaternion(_transform); } set { _transform = new float4x4(value, Position); } }
         #endregion
 
         #region --------------------details

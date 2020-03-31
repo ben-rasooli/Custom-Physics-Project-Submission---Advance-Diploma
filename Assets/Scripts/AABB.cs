@@ -7,22 +7,41 @@ namespace BehnamPhysicsEngine
         #region --------------------interface
         public AABB(float2 exdend, float4x4 transform) : base(transform)
         {
-            _extend = exdend;
+            _extents = exdend;
         }
 
-        public override bool IsCollidingWith(Circle otherPhysicsShape)
+        public float2 Min => Position.xy - _extents;
+
+        public float2 Max => Position.xy + _extents;
+
+        public override bool IsCollidingWith(AABB AABB)
         {
-            return false;
+            float2 myMin = Min;
+            float2 myMax = Max;
+            float2 otherMin = AABB.Min;
+            float2 otherMax = AABB.Max;
+
+            //any gap
+            if (myMax.x < otherMin.x || otherMax.x < myMin.x ||
+                myMax.y < otherMin.y || otherMax.y < myMin.y)
+                return false;
+
+            return true;
+        }
+        
+        public override bool IsCollidingWith(Circle circle)
+        {
+            return circle.IsCollidingWith(this);
         }
 
-        public override bool IsCollidingWith(AABB otherPhysicsShape)
+        public override bool IsCollidingWith(Plane plane)
         {
-            return false;
+            return plane.IsCollidingWith(this);
         }
         #endregion
 
         #region --------------------details
-        float2 _extend;
+        float2 _extents;
         #endregion
     }
 }
