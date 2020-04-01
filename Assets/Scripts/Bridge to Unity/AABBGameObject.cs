@@ -3,19 +3,15 @@ using UnityEngine;
 
 namespace BehnamPhysicsEngine
 {
-    public class AABBGameObject : MonoBehaviour, IPhysicsShape
+    public class AABBGameObject : PhysicsShapeGameObject, IPhysicsShape
     {
-        public PhysicsShape Shape => _shape;
-
-        void Awake()
+        public void Init(PhysicsScene physicsScene)
         {
             var theCollider = GetComponent<BoxCollider2D>();
             Vector2 extents = theCollider.bounds.extents;
             Destroy(theCollider);
-            _shape = new AABB(transform.localToWorldFloat4x4Matrix(),new float2(extents.x, extents.y));
-            FindObjectOfType<GameManager>().physicsScene.Add(_shape);
+            Shape = new AABB(transform.localToWorldFloat4x4Matrix(),new float2(extents.x, extents.y));
+            physicsScene.Add(Shape);
         }
-
-        AABB _shape;
     }
 }

@@ -2,25 +2,15 @@
 
 namespace BehnamPhysicsEngine
 {
-    public class CircleGameObject : MonoBehaviour, IPhysicsShape
+    public class CircleGameObject : PhysicsShapeGameObject, IPhysicsShape
     {
-        public PhysicsShape Shape { get => _shape; }
-
-        void Awake()
+        public void Init(PhysicsScene physicsScene)
         {
-            var theCollider = GetComponent<CircleCollider2D>();
+            var theCollider = transform.GetComponent<CircleCollider2D>();
             float radius = theCollider.bounds.extents.x;
             Destroy(theCollider);
-            _shape = new Circle(transform.localToWorldFloat4x4Matrix(), radius);
-            FindObjectOfType<GameManager>().physicsScene.Add(_shape);
+            Shape = new Circle(transform.localToWorldFloat4x4Matrix(), radius);
+            physicsScene.Add(Shape);
         }
-
-        void Update()
-        {
-            var position = _shape.Position;
-            transform.position = new Vector3(position.x, position.y, 0);
-        }
-
-        Circle _shape;
     }
 }

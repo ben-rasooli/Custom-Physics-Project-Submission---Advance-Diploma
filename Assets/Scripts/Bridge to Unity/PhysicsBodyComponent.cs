@@ -4,11 +4,13 @@ namespace BehnamPhysicsEngine
 {
     public class PhysicsBodyComponent : MonoBehaviour
     {
-        void Start()
+        [SerializeField] float _mass;
+
+        public void Init(PhysicsScene physicsScene)
         {
-            PhysicsShape shape = GetComponent<IPhysicsShape>().Shape;
-            var  physicsBody = new PhysicsBody(shape, 1.0f);
-            FindObjectOfType<GameManager>().physicsScene.Add(physicsBody);
+            PhysicsShape shape = GetComponent<PhysicsShapeGameObject>().Shape;
+            var  physicsBody = new PhysicsBody(shape, _mass);
+            physicsScene.Add(physicsBody);
         }
     }
 }

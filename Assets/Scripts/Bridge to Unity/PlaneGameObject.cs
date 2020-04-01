@@ -2,12 +2,12 @@
 
 namespace BehnamPhysicsEngine
 {
-    public class PlaneGameObject : MonoBehaviour
+    public class PlaneGameObject : PhysicsShapeGameObject, IPhysicsShape
     {
-        void Awake()
+        public void Init(PhysicsScene physicsScene)
         {
-            var shape = new Plane(transform.localToWorldFloat4x4Matrix());
-            FindObjectOfType<GameManager>().physicsScene.Add(shape);
+            Shape = new Plane(transform.localToWorldFloat4x4Matrix());
+            physicsScene.Add(Shape);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace BehnamPhysicsEngine
 {
@@ -15,29 +15,41 @@ namespace BehnamPhysicsEngine
 
         public void OnUpdate(float deltaTime)
         {
-            Debug.Log(deltaTime);
             float accumulatedTime = 0.0f;
             accumulatedTime += deltaTime;
 
             while (accumulatedTime >= _fixedDeltaTime)
             {
-                _physicsBodies.ForEach(pb => pb.OnFixedUpdate(_fixedDeltaTime));
                 accumulatedTime -= _fixedDeltaTime;
 
-                // check collisions for each game entity
+                _physicsBodies.ForEach(pb => pb.OnFixedUpdate(_fixedDeltaTime));
+
+                var physicsShapesPairs = _physicsShapes.Combinations(2);
+
+                foreach (var pair in physicsShapesPairs)
+                    if (pair.ElementAt(0).IsCollidingWith(pair.ElementAt(1)))
+                        UnityEngine.Debug.Log($"{pair.ElementAt(0).ToString()} collides with {pair.ElementAt(0).ToString()}");
             }
         }
 
         public static float2 Gravity;
 
-        public void Add(PhysicsShape gameEntity) => _gameEntities.Add(gameEntity);
+        public void Add(PhysicsShape physicsShape)
+        {
+            _physicsShapes.Add(physicsShape);
+        }
 
         public void Add(PhysicsBody physicsBody) => _physicsBodies.Add(physicsBody);
+
+        public void ApplyForce()
+        {
+            _physicsBodies[0].AddForce(new float2(2.0f, 20.0f));
+        }
         #endregion
 
         #region --------------------details
         float _fixedDeltaTime;
-        List<PhysicsShape> _gameEntities = new List<PhysicsShape>();
+        List<PhysicsShape> _physicsShapes = new List<PhysicsShape>();
         List<PhysicsBody> _physicsBodies = new List<PhysicsBody>();
         #endregion
     }

@@ -1,21 +1,30 @@
-﻿using Unity.Mathematics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace BehnamPhysicsEngine
 {
     public class GameManager : MonoBehaviour
     {
-        public PhysicsScene physicsScene;
+        [SerializeField] GameObject _entities;
 
         void Awake()
         {
-            physicsScene = new PhysicsScene(0.002f, new float2(0, -9.81f));
+            _physicsScene = new PhysicsScene(0.002f, new float2(0, -9.81f));
+            _entities.GetComponentsInChildren<IPhysicsShape>().ToList().ForEach(ps => ps.Init(_physicsScene));
+            _entities.GetComponentsInChildren<PhysicsBodyComponent>().ToList().ForEach(pb => pb.Init(_physicsScene));
         }
 
         void Update()
         {
-            physicsScene.OnUpdate(Time.deltaTime);
+            _physicsScene.OnUpdate(Time.deltaTime);
+
+            if (Input.GetKeyDown(KeyCode.Space))
+                _physicsScene.ApplyForce();
         }
+
+        PhysicsScene _physicsScene;
     }
 
     internal static class ExtensionMethods
@@ -29,6 +38,13 @@ namespace BehnamPhysicsEngine
                 m[1, 0], m[1, 1], m[1, 2], m[1, 3],
                 m[2, 0], m[2, 1], m[2, 2], m[2, 3],
                 m[3, 0], m[3, 1], m[3, 2], m[3, 3]);
+        }
+
+        public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k)
+        {
+            return k == 0 ? new[] { new T[0] } :
+              elements.SelectMany((e, i) =>
+                elements.Skip(i + 1).Combinations(k - 1).Select(c => (new[] { e }).Concat(c)));
         }
     }
 }

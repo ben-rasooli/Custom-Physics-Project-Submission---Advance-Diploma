@@ -9,7 +9,7 @@ namespace BehnamPhysicsEngine
         public Plane(float4x4 transform) : base(transform)
         {
             _offsetToWorldCenter = -math.dot(Position, _transform.c1.xy);
-            _normal = _transform.c1.xy;
+            Normal = _transform.c1.xy;
         }
 
         public override bool IsCollidingWith(Circle circle)
@@ -45,20 +45,21 @@ namespace BehnamPhysicsEngine
 
             return false;
         }
+
+        public float2 Normal { get; private set; }
         #endregion
 
         #region --------------------details
         float _offsetToWorldCenter;
-        float2 _normal;
 
         float getDistanceTo(float2 pointPosition)
         {
-            return math.dot(pointPosition, _normal) + _offsetToWorldCenter;
+            return math.dot(pointPosition, Normal) + _offsetToWorldCenter;
         }
 
         float2 getClosestPointOnPlane(float2 pointPosition)
         {
-            return _offsetToWorldCenter - _normal * getDistanceTo(pointPosition);
+            return _offsetToWorldCenter - Normal * getDistanceTo(pointPosition);
         }
 
         PlaneSides InWhichSideOfPlaneIs(float2 pointPosition)

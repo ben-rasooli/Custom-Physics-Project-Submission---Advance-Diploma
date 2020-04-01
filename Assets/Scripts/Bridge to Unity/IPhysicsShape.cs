@@ -2,6 +2,6 @@
 {
     public interface IPhysicsShape
     {
-        PhysicsShape Shape { get; }
+        void Init(PhysicsScene physicsScene);
     }
 }

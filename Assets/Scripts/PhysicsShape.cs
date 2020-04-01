@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using Unity.Mathematics;
 
 namespace BehnamPhysicsEngine
 {
@@ -16,6 +17,17 @@ namespace BehnamPhysicsEngine
         public virtual bool IsCollidingWith(AABB AABB) => false;
 
         public virtual bool IsCollidingWith(Plane plane) => false;
+
+        public bool IsCollidingWith(PhysicsShape shape)
+        {
+            if (shape.GetType() == typeof(Circle))
+                return IsCollidingWith((Circle)shape);
+            if (shape.GetType() == typeof(AABB))
+                return IsCollidingWith((AABB)shape);
+            if (shape.GetType() == typeof(Plane))
+                return IsCollidingWith((Plane)shape);
+            return false;
+        }
         #endregion
 
         #region --------------------details
