@@ -9,30 +9,26 @@ namespace BehnamPhysicsEngine
 
         public float Radius => _radius;
 
-        public override bool IsCollidingWith(Circle circle)
+        public override bool IsCollidingWith(Circle otherCircle, out float2 penetration)
         {
-            float2 otherPosition = circle.Position.xy;
-            float sqrDistanceBetweenTwoCircles = math.distancesq(Position.xy, otherPosition);
-            float sqrSumOfRadiuses = math.pow(Radius + circle.Radius, 2);
-
-            return sqrDistanceBetweenTwoCircles <= sqrSumOfRadiuses;
+            float distanceBetweenTwoCircles = math.distance(Position, otherCircle.Position);
+            float sumOfRadiuses = Radius + otherCircle.Radius;
+            penetration = (sumOfRadiuses - distanceBetweenTwoCircles) * math.normalize(otherCircle.Position - Position);
+            return distanceBetweenTwoCircles <= sumOfRadiuses;
         }
 
-        public override bool IsCollidingWith(AABB AABB)
+        public override bool IsCollidingWith(AABB AABB, out float2 penetration)
         {
-            float2 AABBMin = AABB.Min;
-            float2 AABBMax = AABB.Max;
-            float2 clampedPosition = math.clamp(Position.xy, AABBMin, AABBMax);
-
-            float sqrDistance = math.distancesq(clampedPosition, Position.xy);
-            float sqrRadius = math.pow(Radius, 2);
-
-            return sqrDistance <= sqrRadius;
+            float2 closestPointToCircleCenter = math.clamp(Position, AABB.Min, AABB.Max);
+            float distanceToClosestPoint = math.distance(closestPointToCircleCenter, Position);
+            float2 vectorToClosestPoint = closestPointToCircleCenter - Position;
+            penetration = vectorToClosestPoint - (math.normalizesafe(vectorToClosestPoint) * Radius);
+            return distanceToClosestPoint <= Radius;
         }
 
-        public override bool IsCollidingWith(Plane plane)
+        public override bool IsCollidingWith(Plane plane, out float2 penetration)
         {
-            return plane.IsCollidingWith(this);
+            return plane.IsCollidingWith(this, out penetration);
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Mathematics;
 
 namespace BehnamPhysicsEngine
@@ -12,25 +13,20 @@ namespace BehnamPhysicsEngine
             Normal = _transform.c1.xy;
         }
 
-        public override bool IsCollidingWith(Circle circle)
+        public override bool IsCollidingWith(Circle circle, out float2 penetration)
         {
             float distanceToCircleCenter = getDistanceTo(circle.Position);
+            penetration = (circle.Radius - distanceToCircleCenter) * -Normal;
             return math.abs(distanceToCircleCenter) <= circle.Radius;
         }
 
-        public override bool IsCollidingWith(AABB AABB)
+        public override bool IsCollidingWith(AABB AABB, out float2 penetration)
         {
-            List<float2> AABBCorners = new List<float2>
-            {
-                AABB.Max,
-                new float2(AABB.Min.x, AABB.Max.y),
-                AABB.Min,
-                new float2(AABB.Max.x, AABB.Min.y)
-            };
+            penetration = float2.zero;
 
             List<bool> sides = new List<bool> { false, false };
 
-            foreach (var corner in AABBCorners)
+            foreach (var corner in AABB.Corners)
             {
                 var result = InWhichSideOfPlaneIs(corner);
 
@@ -41,7 +37,10 @@ namespace BehnamPhysicsEngine
             }
 
             if (sides[0] && sides[1])
+            {
+                penetration = getpenetrationWithAABB(AABB.Corners);
                 return true;
+            }
 
             return false;
         }
@@ -57,11 +56,6 @@ namespace BehnamPhysicsEngine
             return math.dot(pointPosition, Normal) + _offsetToWorldCenter;
         }
 
-        float2 getClosestPointOnPlane(float2 pointPosition)
-        {
-            return _offsetToWorldCenter - Normal * getDistanceTo(pointPosition);
-        }
-
         PlaneSides InWhichSideOfPlaneIs(float2 pointPosition)
         {
             float distanceToPoint = getDistanceTo(pointPosition);
@@ -71,6 +65,26 @@ namespace BehnamPhysicsEngine
             if (distanceToPoint > 0)
                 return PlaneSides.Front;
             return PlaneSides.Intersects;
+        }
+
+        float2 getpenetrationWithAABB(List<float2> Corners)
+        {
+            float2 result = float2.zero;
+
+            foreach (var corner in Corners)
+                if (InWhichSideOfPlaneIs(corner) == PlaneSides.Back)
+                {
+                    float2 closestPointOnPlane = getClosestPointOnPlane(corner);
+                    result = math.distance(closestPointOnPlane, corner) * -Normal;
+                    break;
+                }
+
+            return result;
+        }
+
+        float2 getClosestPointOnPlane(float2 pointPosition)
+        {
+            return pointPosition - Normal * getDistanceTo(pointPosition);
         }
 
         enum PlaneSides

@@ -19,9 +19,6 @@ namespace BehnamPhysicsEngine
         void Update()
         {
             _physicsScene.OnUpdate(Time.deltaTime);
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                _physicsScene.ApplyForce();
         }
 
         PhysicsScene _physicsScene;
@@ -29,6 +26,9 @@ namespace BehnamPhysicsEngine
 
     internal static class ExtensionMethods
     {
+        /// <summary>
+        /// It maps UnityEngine transformation matrix to Unity.Mathematics float4x4 matrix
+        /// </summary>
         public static float4x4 localToWorldFloat4x4Matrix(this Transform transform)
         {
             var m = transform.localToWorldMatrix;
@@ -40,11 +40,16 @@ namespace BehnamPhysicsEngine
                 m[3, 0], m[3, 1], m[3, 2], m[3, 3]);
         }
 
-        public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k)
+        /// <summary>
+        /// It returns a list of all the possible unique combinations for the items of a list.
+        /// For example, for {1, 2, 3} it returns {{1, 2}, {1, 3}, {2, 3}}
+        /// </summary>
+        /// <param name="lenght">lenght of each combination. To get pairs, pass 2</param>
+        public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int lenght)
         {
-            return k == 0 ? new[] { new T[0] } :
+            return lenght == 0 ? new[] { new T[0] } :
               elements.SelectMany((e, i) =>
-                elements.Skip(i + 1).Combinations(k - 1).Select(c => (new[] { e }).Concat(c)));
+                elements.Skip(i + 1).Combinations(lenght - 1).Select(c => (new[] { e }).Concat(c)));
         }
     }
 }
